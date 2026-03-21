@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เช็คสถานะน้ำมัน - ปั๊มศรีสะเกษ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    #map { height: 350px; width: 100%; border-radius: 1rem; z-index: 0; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-blue-600 to-sky-500 text-white shadow-lg sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-bold flex items-center gap-2">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            เช็คสถานะน้ำมัน
+          </h1>
+          <p class="text-blue-100 text-sm">ปั๊มน้ำมันศรีสะเกษ 8 สาขา</p>
+        </div>
+        <button onclick="refreshCustomerPage()" class="bg-white/20 hover:bg-white/30 rounded-xl px-3 py-2 text-sm transition-colors">
+          รีเฟรช
+        </button>
+      </div>
+      <p id="last-updated" class="text-blue-200 text-xs mt-1"></p>
+    </div>
+  </header>
+
+  <!-- Map -->
+  <section class="max-w-5xl mx-auto px-4 pt-6">
+    <div id="map" class="shadow-lg"></div>
+  </section>
+
+  <!-- Station Cards -->
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <div id="stations" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-400 text-xs py-6">
+    <p>ปั๊มน้ำมันศรีสะเกษ &copy; 2026</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>initCustomerApp();</script>
+</body>
+</html>
