@@ -49,24 +49,25 @@ async function supaFetch(method, body) {
 
 async function loadFromSupabase() {
   try {
+    console.log("Loading from Supabase URL:", SUPA_URL);
     const rows = await supaFetch("GET");
     if (rows && rows.length > 0 && rows[0].data) {
       _memDB = rows[0].data;
-      console.log("Loaded data from Supabase OK");
+      console.log("Loaded data from Supabase OK, updatedAt:", _memDB.updatedAt);
     } else {
-      console.log("No data in Supabase, using defaults");
+      console.log("No data in Supabase, using defaults. Rows:", JSON.stringify(rows));
     }
   } catch (e) {
-    console.warn("Failed to load from Supabase:", e.message);
+    console.error("FAILED to load from Supabase:", e.message, e.stack);
   }
 }
 
 async function saveToSupabase() {
   try {
     await supaFetch("PATCH", { data: _memDB });
-    console.log("Saved to Supabase OK");
+    console.log("Saved to Supabase OK, updatedAt:", _memDB.updatedAt);
   } catch (e) {
-    console.warn("Failed to save to Supabase:", e.message);
+    console.error("FAILED to save to Supabase:", e.message, e.stack);
   }
 }
 
