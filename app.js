@@ -192,16 +192,19 @@ function renderAdminPage() {
         <div class="p-5 space-y-3">
           <div>
             <label class="text-xs text-gray-500 font-medium">ชื่อปั๊ม</label>
-            <input type="text" value="${info.name}"
-                   onchange="updateStationInfo(${station.id}, 'name', this.value)"
+            <input type="text" id="name-${station.id}" value="${info.name}"
                    class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none" />
           </div>
           <div>
             <label class="text-xs text-gray-500 font-medium">ที่อยู่</label>
-            <input type="text" value="${info.address}"
-                   onchange="updateStationInfo(${station.id}, 'address', this.value)"
+            <input type="text" id="addr-${station.id}" value="${info.address}"
                    class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-300 focus:outline-none" />
           </div>
+          <button onclick="saveStationFields(${station.id})"
+                  class="w-full py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors text-sm">
+            บันทึก
+          </button>
+          <p id="saved-${station.id}" class="text-green-600 text-xs text-center hidden">บันทึกเรียบร้อยแล้ว</p>
           <div class="border-t pt-3 space-y-2">
             ${togglesHtml}
           </div>
@@ -210,12 +213,20 @@ function renderAdminPage() {
   }).join("");
 }
 
-async function updateStationInfo(stationId, field, value) {
+async function saveStationFields(stationId) {
+  const nameEl = document.getElementById(`name-${stationId}`);
+  const addrEl = document.getElementById(`addr-${stationId}`);
+  const savedEl = document.getElementById(`saved-${stationId}`);
   const info = getInfo();
   if (!info[stationId]) info[stationId] = {};
-  info[stationId][field] = value;
+  info[stationId].name = nameEl.value;
+  info[stationId].address = addrEl.value;
   _db.info = info;
   await saveDB({ info });
+  if (savedEl) {
+    savedEl.classList.remove("hidden");
+    setTimeout(() => savedEl.classList.add("hidden"), 3000);
+  }
 }
 
 async function toggleFuel(stationId, fuelId, value) {
