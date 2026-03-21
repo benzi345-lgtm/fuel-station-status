@@ -451,6 +451,12 @@ async function initCustomerApp() {
   if (stationsSection) stationsSection.classList.remove("hidden");
   renderCustomerPage();
   initMap();
+
+  // Auto-refresh ทุก 30 วินาที
+  setInterval(async () => {
+    await fetchDB();
+    renderCustomerPage();
+  }, 30000);
 }
 
 async function initAdminApp() {
