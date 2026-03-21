@@ -4,14 +4,21 @@ const API_URL = "/api/data";
 // In-memory cache (loaded from server)
 let _db = { status: {}, locations: {}, info: {}, updatedAt: null };
 
-async function fetchDB() {
-  try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    _db = data;
-  } catch (e) {
-    console.warn("Failed to fetch data, using defaults");
+async function fetchDB(retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(API_URL);
+      if (res.ok) {
+        _db = await res.json();
+        return _db;
+      }
+    } catch (e) {
+      if (i < retries - 1) {
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
   }
+  console.warn("Failed to fetch data after retries, using defaults");
   return _db;
 }
 
@@ -424,6 +431,13 @@ function updateCoordDisplay(stationId) {
 // ===== Init: Load data then render =====
 async function initCustomerApp() {
   await fetchDB();
+  // Hide loading, show content
+  const loading = document.getElementById("loading");
+  const mapSection = document.getElementById("map-section");
+  const stationsSection = document.getElementById("stations-section");
+  if (loading) loading.classList.add("hidden");
+  if (mapSection) mapSection.classList.remove("hidden");
+  if (stationsSection) stationsSection.classList.remove("hidden");
   renderCustomerPage();
   initMap();
 }
@@ -434,7 +448,6 @@ async function initAdminApp() {
   initAdminMap();
 }
 
-// Auto-refresh customer page every 30 seconds
 async function refreshCustomerPage() {
   await fetchDB();
   renderCustomerPage();
