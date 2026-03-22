@@ -193,7 +193,7 @@ function renderAdminPage() {
     return `
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="bg-gray-700 text-white px-5 py-3">
-          <h2 class="text-lg font-bold">สาขา ${station.id}</h2>
+          <h2 class="text-lg font-bold">${info.name}</h2>
         </div>
         <div class="p-5 space-y-3">
           <div>
