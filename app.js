@@ -26,13 +26,19 @@ async function saveDB(fields) {
   Object.assign(_db, fields);
   _db.updatedAt = new Date().toISOString();
   try {
-    await fetch(API_URL, {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(fields),
     });
+    if (!res.ok) {
+      alert("บันทึกไม่สำเร็จ กรุณาลองใหม่");
+      return false;
+    }
+    return true;
   } catch (e) {
-    console.warn("Failed to save data");
+    alert("ไม่สามารถเชื่อมต่อ server ได้ กรุณาลองใหม่");
+    return false;
   }
 }
 
@@ -222,8 +228,15 @@ async function saveStationFields(stationId) {
   info[stationId].name = nameEl.value;
   info[stationId].address = addrEl.value;
   _db.info = info;
-  await saveDB({ info });
-  if (savedEl) {
+
+  // Save ทุกอย่างรวมกัน (ชื่อ + แผนที่ + สถานะ) ป้องกันข้อมูลหาย
+  const ok = await saveDB({
+    info: getInfo(),
+    locations: getLocations(),
+    status: getStatus(),
+  });
+
+  if (ok && savedEl) {
     savedEl.classList.remove("hidden");
     setTimeout(() => savedEl.classList.add("hidden"), 3000);
   }
@@ -234,8 +247,22 @@ async function toggleFuel(stationId, fuelId, value) {
   if (!status[stationId]) status[stationId] = {};
   status[stationId][fuelId] = value;
   _db.status = status;
-  await saveDB({ status });
-  renderAdminPage();
+
+  // Save ทุกอย่างรวมกัน
+  await saveDB({
+    info: getInfo(),
+    locations: getLocations(),
+    status,
+  });
+
+  // อัพเดทแค่สีของ toggle ไม่ render ใหม่ทั้งหน้า (ป้องกันข้อมูลที่กำลังพิมพ์หาย)
+  const toggleRow = document.getElementById(`toggle-${stationId}-${fuelId}`);
+  if (toggleRow) {
+    const row = toggleRow.closest("div.flex");
+    if (row) {
+      row.className = row.className.replace(/bg-\w+-50/g, value ? "bg-green-50" : "bg-red-50");
+    }
+  }
 }
 
 async function setAllFuel(value) {
@@ -247,7 +274,11 @@ async function setAllFuel(value) {
     });
   });
   _db.status = status;
-  await saveDB({ status });
+  await saveDB({
+    info: getInfo(),
+    locations: getLocations(),
+    status,
+  });
   renderAdminPage();
 }
 
@@ -368,7 +399,7 @@ function initAdminMap() {
       const locs = getLocations();
       locs[station.id] = { lat: pos.lat, lng: pos.lng };
       _db.locations = locs;
-      await saveDB({ locations: locs });
+      await saveDB({ info: getInfo(), locations: locs, status: getStatus() });
       updateCoordDisplay(station.id);
     });
 
@@ -390,7 +421,7 @@ function initAdminMap() {
     const locs = getLocations();
     locs[selectedStationId] = { lat: e.latlng.lat, lng: e.latlng.lng };
     _db.locations = locs;
-    await saveDB({ locations: locs });
+    await saveDB({ info: getInfo(), locations: locs, status: getStatus() });
     updateCoordDisplay(selectedStationId);
   });
 
